@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCalificacionDto } from './dto/create-calificacion.dto';
 import { UpdateCalificacionDto } from './dto/update-calificacion.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,7 +10,10 @@ export class CalificacionService {
   constructor(@InjectModel(Calificacion.name) private readonly CalificacionSchema:Model<Calificacion> ){}
 
   create(createCalificacionDto: CreateCalificacionDto) {
-    return this.CalificacionSchema.create(createCalificacionDto) ;
+    
+    this.CalificacionSchema.create(createCalificacionDto) ;
+
+    return {status:HttpStatus.CREATED}
   }
 
   findAll() {
