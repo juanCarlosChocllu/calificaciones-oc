@@ -9,6 +9,8 @@ export class SucursalController {
 
   @Post()
   create(@Body() createSucursalDto: CreateSucursalDto) {
+    console.log(createSucursalDto);
+    
     return this.sucursalService.create(createSucursalDto);
   }
 

@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-@Schema()
+@Schema({collection:'Empresa'})
 export class Empresa {
     @Prop()
     nombre:string
-    @Prop()
+    @Prop({type:Date, default:Date.now()})
     fecha:Date
 }
 
