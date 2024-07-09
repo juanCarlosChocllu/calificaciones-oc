@@ -7,7 +7,7 @@ import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 export class EmpresaController {
   constructor(private readonly empresaService: EmpresaService) {}
 
-  @Post()
+  @Post('create')
   create(@Body() createEmpresaDto: CreateEmpresaDto) {
     return this.empresaService.create(createEmpresaDto);
   }

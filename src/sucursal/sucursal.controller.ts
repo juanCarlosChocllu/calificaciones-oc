@@ -7,7 +7,7 @@ import { UpdateSucursalDto } from './dto/update-sucursal.dto';
 export class SucursalController {
   constructor(private readonly sucursalService: SucursalService) {}
 
-  @Post()
+  @Post('create')
   create(@Body() createSucursalDto: CreateSucursalDto) {
     console.log(createSucursalDto);
     

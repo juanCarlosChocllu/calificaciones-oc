@@ -7,9 +7,6 @@ export class Sucursal {
     nombre:string
     @Prop({type: Types.ObjectId, ref:'Empresa'})
     empresa:Types.ObjectId
-
-    @Prop({type:Types.ObjectId, ref:'User'})
-    user:Types.ObjectId
     @Prop({type:Date, default:Date.now()})
     fecha:Date
 }
