@@ -4,34 +4,57 @@ import { UpdateSucursalDto } from './dto/update-sucursal.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Sucursal } from './schemas/sucursal.schema';
 import { Model, Types } from 'mongoose';
+import { EmpresaService } from 'src/empresa/empresa.service';
+import { Flag } from 'src/common/enums/flag.enum';
 
 @Injectable()
 export class SucursalService {
-  constructor(@InjectModel(Sucursal.name) private readonly SucursalSchema:Model<Sucursal> ){}
+  constructor(
+    @InjectModel(Sucursal.name)
+    private readonly SucursalSchema: Model<Sucursal>,
+    private readonly empresaService:EmpresaService
+  ) {}
 
-  create(createSucursalDto: CreateSucursalDto) {
-    return this.SucursalSchema.create(createSucursalDto) ;
+  async create(createSucursalDto: CreateSucursalDto) {
+    await this.empresaService.findOne(`${createSucursalDto.empresa}`)
+    createSucursalDto.empresa= new Types.ObjectId(createSucursalDto.empresa)
+    return this.SucursalSchema.create(createSucursalDto);
   }
 
-  findAll() {
-    return `This action returns all sucursal`;
+  async findAll() {
+
+    return  await this.SucursalSchema.find();
   }
 
-  findOne(id:number ) {
-    return `This action returns a #${id} sucursal`;
-  }
-
-  async buscarSucursal(idSucursal:Types.ObjectId){
-    const sucursal = await this.SucursalSchema.findById(idSucursal)
-    if(!sucursal){
-      throw new NotFoundException('SucursaL no encontrada')
-    }
+  async findOne(id: string) {
+    const sucursal = await this. verficarSucursal(id)
     return sucursal
+   
   }
-  buscarSucursalUsuario(usuario:Types.ObjectId){
-    
 
+  async buscarSucursal(idSucursal: Types.ObjectId) {
+    const sucursal = await this.SucursalSchema.findById(idSucursal);
+    if (!sucursal) {
+      throw new NotFoundException('Sucursal no encontrada');
+    }
+    return sucursal;
   }
+
+ private async verficarSucursal(id:string){
+  const sucursal:Sucursal = await this.SucursalSchema.findOne({_id:id, flag:Flag.nuevo})
+  if(!sucursal){
+    throw new NotFoundException()
+  }
+  return sucursal
+  
+
+ }
+
+
+ public async listarSucursales(id:Types.ObjectId){
+  const sucursal = await this.SucursalSchema.find({empresa:new Types.ObjectId(id)})
+  return sucursal
+ } 
 
   update(id: number, updateSucursalDto: UpdateSucursalDto) {
     return `This action updates a #${id} sucursal`;

@@ -1,6 +1,12 @@
-import {IsString } from "class-validator";
+import { IsMongoId, IsString } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class CreateSucursalDto {
-    @IsString()
-    nombre:string
+  @IsString()
+  nombre: string;
+
+
+  @IsMongoId()
+  empresa:Types.ObjectId
+  
 }

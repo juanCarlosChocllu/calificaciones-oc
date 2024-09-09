@@ -8,12 +8,15 @@ import { tokenGuard } from './guards/token.guards';
 import { SucursalModule } from 'src/sucursal/sucursal.module';
 
 @Module({
-  imports:[UserModule,JwtModule.register({
-    global:true,
-    secret:jwtConstants.secret
-  })],
+  imports: [
+    UserModule,
+    JwtModule.register({
+      global: true,
+      secret: jwtConstants.secret,
+    }),
+  ],
   controllers: [AutenticacionController],
   providers: [AutenticacionService, tokenGuard],
-  exports:[tokenGuard]
+  exports: [tokenGuard],
 })
 export class AutenticacionModule {}

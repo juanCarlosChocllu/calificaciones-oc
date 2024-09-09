@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { EmpresaService } from './empresa.service';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
@@ -19,7 +27,7 @@ export class EmpresaController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.empresaService.findOne(+id);
+    return this.empresaService.findOne(id);
   }
 
   @Patch(':id')

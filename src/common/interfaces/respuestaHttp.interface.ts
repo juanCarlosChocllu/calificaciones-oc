@@ -1,6 +1,6 @@
-import { HttpStatus } from "@nestjs/common";
+import { HttpStatus } from '@nestjs/common';
 
-export interface respuestaHttpI<T>{
-    status:HttpStatus
-    data?:T
+export interface respuestaHttpI<T> {
+  status: HttpStatus;
+  data?: T;
 }
