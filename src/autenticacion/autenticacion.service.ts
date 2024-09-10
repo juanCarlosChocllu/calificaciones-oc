@@ -31,6 +31,7 @@ export class AutenticacionService {
     const token = await this.generarToken({ user });
     const resultado = {
       status: HttpStatus.OK,
+      rol:user.rol,
       token: token,
     };
     return resultado;
