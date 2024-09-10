@@ -21,9 +21,9 @@ export class SucursalService {
     return this.SucursalSchema.create(createSucursalDto);
   }
 
-  async findAll() {
+  async findAll(id:string) {
 
-    return  await this.SucursalSchema.find();
+    return  await this.SucursalSchema.find({empresa:new Types.ObjectId(id), flag:Flag.nuevo});
   }
 
   async findOne(id: string) {
@@ -46,8 +46,6 @@ export class SucursalService {
     throw new NotFoundException()
   }
   return sucursal
-  
-
  }
 
 

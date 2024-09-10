@@ -22,9 +22,9 @@ export class SucursalController {
     return this.sucursalService.create(createSucursalDto);
   }
 
-  @Get()
-  findAll() {
-    return this.sucursalService.findAll();
+  @Get('listar/:id')
+  findAll(@Param('id') id: string) {
+    return this.sucursalService.findAll(id);
   }
 
   @Get(':id')

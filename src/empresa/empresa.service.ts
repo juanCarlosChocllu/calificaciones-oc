@@ -22,7 +22,7 @@ export class EmpresaService {
   }
 
   findAll() {
-    return `This action returns all empresa`;
+    return this.EmpresaSchema.find();
   }
 
   async findOne(id: string) {

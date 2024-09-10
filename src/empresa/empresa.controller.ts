@@ -20,7 +20,7 @@ export class EmpresaController {
     return this.empresaService.create(createEmpresaDto);
   }
 
-  @Get()
+  @Get('listar')
   findAll() {
     return this.empresaService.findAll();
   }
