@@ -32,7 +32,7 @@ export class SucursalController {
     return this.sucursalService.findOne(id);
   }
 
-  @Get('listar')
+  @Get()
   listarSucursal() {
     return this.sucursalService.listarSucursal();
   }
