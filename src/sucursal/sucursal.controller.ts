@@ -32,16 +32,13 @@ export class SucursalController {
     return this.sucursalService.findOne(id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateSucursalDto: UpdateSucursalDto,
-  ) {
-    return this.sucursalService.update(+id, updateSucursalDto);
+  @Get('listar')
+  listarSucursal() {
+    return this.sucursalService.listarSucursal();
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sucursalService.remove(+id);
-  }
+
+
+
+
 }

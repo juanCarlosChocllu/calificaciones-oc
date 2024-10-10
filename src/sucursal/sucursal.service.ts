@@ -57,11 +57,8 @@ export class SucursalService {
   return sucursal
  } 
 
-  update(id: number, updateSucursalDto: UpdateSucursalDto) {
-    return `This action updates a #${id} sucursal`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} sucursal`;
+  async listarSucursal(){
+    const sucursal = await this.SucursalSchema.find({flag:Flag.nuevo})
+    return sucursal
   }
 }

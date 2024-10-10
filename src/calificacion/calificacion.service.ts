@@ -135,10 +135,7 @@ export class CalificacionService {
  
       return acc;
     }, {});
-    
-
     const result:CalificacionesI[] = Object.values(groupedByEmpresa);
-      
    return result
 }
 async email(){
