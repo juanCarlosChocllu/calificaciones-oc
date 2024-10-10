@@ -30,5 +30,6 @@ export interface nombreCalificacionesI {
 export interface CalificacionI {
     _id: string;
     cantidad: number;
+    calificacion:string
 }
 
