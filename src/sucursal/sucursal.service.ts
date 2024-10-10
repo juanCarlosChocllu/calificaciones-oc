@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Type } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, Type } from '@nestjs/common';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
 import { UpdateSucursalDto } from './dto/update-sucursal.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,13 +16,16 @@ export class SucursalService {
   ) {}
 
   async create(createSucursalDto: CreateSucursalDto) {
+    const sucursal = await this.SucursalSchema.findOne({nombre:createSucursalDto.nombre})
+    if(sucursal){
+      throw new ConflictException('La sucursal ya existe')
+    }
     await this.empresaService.findOne(`${createSucursalDto.empresa}`)
     createSucursalDto.empresa= new Types.ObjectId(createSucursalDto.empresa)
     return this.SucursalSchema.create(createSucursalDto);
   }
 
   async findAll(id:string) {
-
     return  await this.SucursalSchema.find({empresa:new Types.ObjectId(id), flag:Flag.nuevo});
   }
 

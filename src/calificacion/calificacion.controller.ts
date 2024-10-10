@@ -15,6 +15,7 @@ import { UpdateCalificacionDto } from './dto/update-calificacion.dto';
 import { tokenGuard } from 'src/autenticacion/guards/token.guards';
 import { Type } from 'class-transformer';
 import { Types } from 'mongoose';
+import { FiltroCalificacionesDto } from './dto/filtroCalificaciones.dto';
 
 @Controller('calificacion')
 export class CalificacionController {
@@ -29,8 +30,19 @@ export class CalificacionController {
     createCalificacionDto.sucursal = new Types.ObjectId(idSucursal);
     return this.calificacionService.create(createCalificacionDto);
   }
+
   @Get()
   findAll() {
     return this.calificacionService.findAll();
   }
+
+  @Get('email')
+  email() {
+    return this.calificacionService.email();
+  }
+  @Post('listar')
+  calificaciones(@Body() filtroCalificacionesDto:FiltroCalificacionesDto) {
+    return this.calificacionService.calificaciones(filtroCalificacionesDto);
+  }
+  
 }

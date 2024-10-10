@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,6 +13,10 @@ export class EmpresaService {
     @InjectModel(Empresa.name) private readonly EmpresaSchema: Model<Empresa>,
   ) {}
   async create(createEmpresaDto: CreateEmpresaDto) {
+    const empr = await this.EmpresaSchema.findOne({nombre:createEmpresaDto.nombre})
+    if(empr){
+      throw new  ConflictException('LA EMPRESA YA EXISTE')
+    }
     const empresa = await this.EmpresaSchema.create(createEmpresaDto);
     const resultado: respuestaHttpI<Empresa> = {
       status: HttpStatus.CREATED,

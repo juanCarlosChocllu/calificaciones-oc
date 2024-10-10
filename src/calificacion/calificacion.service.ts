@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, UseGuards } from '@nestjs/common';
+import { HttpStatus, Injectable, UseGuards , BadRequestException} from '@nestjs/common';
 import { CreateCalificacionDto } from './dto/create-calificacion.dto';
 import { UpdateCalificacionDto } from './dto/update-calificacion.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,8 +11,17 @@ import { SucursalService } from 'src/sucursal/sucursal.service';
 import { Flag } from 'src/common/enums/flag.enum';
 import { Type } from 'class-transformer';
 import { generarPdfEmpresa } from './utils/pdf.util';
-import { CalificacionesI } from './interfaces/calificaciones.interface';
+import { enviarEmail } from './utils/email.util';
+import { CalificacionesI, CalificacionI, nombreCalificacionesI } from './interfaces/calificaciones.interface';
 import { CalificacionEnum } from './enums/calificacion.enum';
+
+
+import * as path from 'path'
+import * as fs from 'fs'
+import { FiltroCalificacionesDto } from './dto/filtroCalificaciones.dto';
+import { promises } from 'node:dns';
+
+
 
 
 
@@ -43,9 +52,13 @@ export class CalificacionService {
   }
 
   private async informacionCalificacionPorDia() {
+    const diaHoy = new Date();
+    const diaInicio = new Date(diaHoy.setHours(0, 0, 0, 0));
+    const diaFin = new Date(diaHoy.setHours(23, 59, 59, 999))
     const sucursales=[]
     const calificaciones=[]
     const empresas = await this.EmpresaService.listarEmpresas()
+    
     for(let empresa of empresas ){
       const sucursal = await this.sucursalService.listarSucursales(empresa._id)
       if(sucursal.length > 0){
@@ -54,12 +67,16 @@ export class CalificacionService {
      
     }
     
-    for(let data of sucursales){
+    for(let data of sucursales){  
       const calificacion = await this.CalificacionSchema.aggregate([
         {
           $match:{
             sucursal: data._id,
-            flag:Flag.nuevo
+            flag:Flag.nuevo,
+            fecha:{
+              $gte: diaInicio,
+              $lte:diaFin
+            }
           },
   
         },
@@ -86,7 +103,6 @@ export class CalificacionService {
     }
 
     const dataAgrupada:CalificacionesI[]=  this.agruparPorEmpresa(calificaciones)
-    
      generarPdfEmpresa(dataAgrupada)
  
       return  {status:HttpStatus.OK}
@@ -123,48 +139,70 @@ export class CalificacionService {
     const result:CalificacionesI[] = Object.values(groupedByEmpresa);
       
    return result
-      
-      
+}
+async email(){
+  const date = new Date();
+  const dia = String(date.getDate()).padStart(2, '0');
+  const mes = String(date.getMonth() + 1).padStart(2, '0');
+  const aqo = date.getFullYear();
+  try {
+    const ruta =  path.join(__dirname,'..', '..', 'pdf', `${dia}${mes}${aqo}`)
+    const archivos = await  fs.promises.readdir(ruta)    
+    const email = await enviarEmail(archivos,ruta )
+    return { status:HttpStatus.OK}
+  } catch (error) {    
+     throw new  BadRequestException()
+  }
+}
 
 
-   }
-   /*
-   private sumarCalificaciones(calificaciones:CalificacionesI[]){
-    const calificaiconTotal={
-        excelente:0,
-        Bueno :0,
-        Regular:0,
-        Mala :0,
-        MuyMala :0,
-    }
-    for(let data of calificaciones){
-        for(let suc of data.sucursales){
-            let excelente = suc.calificaciones.filter((item)=> item._id == CalificacionEnum.excelente)
-            calificaiconTotal.excelente= excelente.reduce((total, cant)=> total + cant.cantidad, 0)
-            
-            let bueno = suc.calificaciones.filter((item)=> item._id == CalificacionEnum.Bueno)
-            calificaiconTotal.Bueno= bueno.reduce((total, cant)=> total + cant.cantidad, 0)
-            
-            let Regular = suc.calificaciones.filter((item)=> item._id == CalificacionEnum.Regular)
-            calificaiconTotal.Regular= Regular.reduce((total, cant)=> total + cant.cantidad, 0)
-            
-            let Mala = suc.calificaciones.filter((item)=> item._id == CalificacionEnum.Mala)
-            calificaiconTotal.Mala= Mala.reduce((total, cant)=> total + cant.cantidad, 0)
-                      
-            let MuyMala = suc.calificaciones.filter((item)=> item._id == CalificacionEnum.MuyMala)
-            calificaiconTotal.MuyMala= MuyMala.reduce((total, cant)=> total + cant.cantidad, 0)
-            
-            
-            
+  async calificaciones(filtroCalificacionesDto:FiltroCalificacionesDto){
+    const calificaciones={}
+    const data:any[]=[]
+    for (let su of filtroCalificacionesDto.sucursal){
+      const sucursal = await this.sucursalService.buscarSucursal(su)
+      const calificacion = await this.CalificacionSchema.aggregate([
+        {
+          $match:{
+            sucursal:new Types.ObjectId(su),
+            flag:Flag.nuevo
+          }
+        },
+        {
+        $group:{
+          _id:'$nombre',
+          cantidad:{$sum:1}
         }
-        console.log(calificaiconTotal);
-        
-        
+        }
+      ])
+      const [sucur,cali] = await Promise.all([sucursal, calificacion])
+      const resultado={
+        sucursal:sucur.nombre,
+        id:sucur.id,
+        calificaciones:cali
+      }
+      data.push(resultado)
     }
-    return calificaiconTotal
-    
-}*/
-
-
+    const totalCalificaciones=  this.contarCalificaiconesTotal(data)
+    return {status:HttpStatus.OK,totalCalificaciones, data}
+  }
+  
+  private contarCalificaiconesTotal(calificaciones:any[]){
+     const totalCalficaciones:nombreCalificacionesI={
+     Bueno:0,
+     excelente:0,
+     Mala:0,
+     MuyMala:0,
+     Regular:0
+     }
+     for(let data of  calificaciones){
+       totalCalficaciones.Bueno = data.calificaciones.filter((cali:CalificacionI)=> cali._id === CalificacionEnum.Bueno).reduce((total:number,calificacion:any)=>total + calificacion.cantidad ,  0)
+       totalCalficaciones.excelente = data.calificaciones.filter((cali:CalificacionI)=> cali._id === CalificacionEnum.excelente).reduce((total:number,calificacion:any)=>total + calificacion.cantidad ,  0)
+       totalCalficaciones.Mala = data.calificaciones.filter((cali:CalificacionI)=> cali._id === CalificacionEnum.Mala).reduce((total:number,calificacion:any)=>total + calificacion.cantidad ,  0)
+       totalCalficaciones.MuyMala = data.calificaciones.filter((cali:CalificacionI)=> cali._id === CalificacionEnum.MuyMala).reduce((total:number,calificacion:any)=>total + calificacion.cantidad ,  0)
+       totalCalficaciones.Regular = data.calificaciones.filter((cali:CalificacionI)=> cali._id === CalificacionEnum.Regular).reduce((total:number,calificacion:any)=>total + calificacion.cantidad ,  0)
+      }
+      return totalCalficaciones
+   }
 
 }
