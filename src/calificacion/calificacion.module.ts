@@ -9,6 +9,7 @@ import {
 import { AutenticacionModule } from 'src/autenticacion/autenticacion.module';
 import { EmpresaModule } from 'src/empresa/empresa.module';
 import { SucursalModule } from 'src/sucursal/sucursal.module';
+import { CorreosModule } from 'src/correos/correos.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { SucursalModule } from 'src/sucursal/sucursal.module';
     ]),
     AutenticacionModule,
     EmpresaModule,
-    SucursalModule
+    SucursalModule,
+    CorreosModule
   ],
   controllers: [CalificacionController],
   providers: [CalificacionService],

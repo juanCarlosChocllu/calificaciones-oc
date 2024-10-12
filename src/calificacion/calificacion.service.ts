@@ -21,6 +21,7 @@ import * as fs from 'fs'
 import { FiltroCalificacionesDto } from './dto/filtroCalificaciones.dto';
 import { promises } from 'node:dns';
 import { fechaFormateada } from 'src/utils/formateoFecha.util';
+import { CorreosService } from 'src/correos/correos.service';
 
 
 
@@ -32,7 +33,8 @@ export class CalificacionService {
     @InjectModel(Calificacion.name)
     private readonly CalificacionSchema: Model<Calificacion>,
     protected readonly EmpresaService:EmpresaService,
-    protected readonly sucursalService:SucursalService
+    protected readonly sucursalService:SucursalService,
+    private readonly correosService:CorreosService
   ) {}
 
   async create(createCalificacionDto: CreateCalificacionDto) {
@@ -139,17 +141,21 @@ export class CalificacionService {
    return result
 }
 async email(){
+  await this.informacionCalificacionPorDia()
   const date = new Date();
   const dia = String(date.getDate()).padStart(2, '0');
   const mes = String(date.getMonth() + 1).padStart(2, '0');
   const aqo = date.getFullYear();
   try {
+  
     const ruta =  path.join(__dirname,'..', '..', 'pdf', `${dia}${mes}${aqo}`)
     const archivos = await  fs.promises.readdir(ruta)    
-    const email = await enviarEmail(archivos,ruta )
+    const email = await this.correosService.enviarEmail(archivos,ruta )  
+    console.log(email);
+    
     return { status:HttpStatus.OK}
-  } catch (error) {    
-     throw new  BadRequestException()
+  } catch (error) {  
+     throw new  BadRequestException('Realiza la cofiguracion correspondiente para el envio de correos')
   }
 }
 
