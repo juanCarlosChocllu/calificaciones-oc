@@ -8,7 +8,7 @@ import { UseGuards } from '@nestjs/common';
 import { tokenGuard } from 'src/autenticacion/guards/token/token.guard';
 
 @UseGuards(tokenGuard)
-@WebSocketGateway() 
+@WebSocketGateway({cors:'*'}) 
 export class CalificacionSocketGateway  implements  OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private server:Server
