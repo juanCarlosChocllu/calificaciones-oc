@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, Type } from '@nestjs/common';
+import { ConflictException, HttpStatus, Injectable, NotFoundException, Type } from '@nestjs/common';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
 import { UpdateSucursalDto } from './dto/update-sucursal.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,7 +16,7 @@ export class SucursalService {
   ) {}
 
   async create(createSucursalDto: CreateSucursalDto) {
-    const sucursal = await this.SucursalSchema.findOne({nombre:createSucursalDto.nombre})
+    const sucursal = await this.SucursalSchema.findOne({nombre:createSucursalDto.nombre,flag:Flag.nuevo})
     if(sucursal){
       throw new ConflictException('La sucursal ya existe')
     }
@@ -25,7 +25,7 @@ export class SucursalService {
     return this.SucursalSchema.create(createSucursalDto);
   }
 
-  async findAll(id:string) {
+  async findAll(id:string) {    
     return  await this.SucursalSchema.find({empresa:new Types.ObjectId(id), flag:Flag.nuevo});
   }
 
@@ -36,7 +36,7 @@ export class SucursalService {
   }
 
   async buscarSucursal(idSucursal: Types.ObjectId) {
-    const sucursal = await this.SucursalSchema.findById(idSucursal);
+    const sucursal = await this.SucursalSchema.findById(idSucursal,{flag:Flag.nuevo});
     if (!sucursal) {
       throw new NotFoundException('Sucursal no encontrada');
     }
@@ -53,12 +53,31 @@ export class SucursalService {
 
 
  public async listarSucursales(id:Types.ObjectId){
-  const sucursal = await this.SucursalSchema.find({empresa:new Types.ObjectId(id)})
+  const sucursal = await this.SucursalSchema.find({empresa:new Types.ObjectId(id), flag:Flag.nuevo})
   return sucursal
  } 
 
   async listarSucursal(){
     const sucursal = await this.SucursalSchema.find({flag:Flag.nuevo})
     return sucursal
+  }
+
+  async softDelete(id:string){
+    const sucursal = await this.SucursalSchema.findOne({_id:new Types.ObjectId(id) ,flag:Flag.nuevo})
+    if(!sucursal){
+      throw new NotFoundException('Sucursal no encontrada');
+    }
+    await this.SucursalSchema.findByIdAndUpdate(new Types.ObjectId(id), {flag:Flag.eliminado})
+    return {status:HttpStatus.OK}
+  }
+
+  async update(id:string, updateSucursalDto:UpdateSucursalDto){
+    const sucursal = await this.SucursalSchema.findOne({_id:new Types.ObjectId(id) ,flag:Flag.nuevo})
+    if(!sucursal){
+      throw new NotFoundException('Sucursal no encontrada');
+    }
+    updateSucursalDto.empresa = new Types.ObjectId(updateSucursalDto.empresa)
+    await this.SucursalSchema.findByIdAndUpdate(new Types.ObjectId(id), updateSucursalDto)
+    return {status:HttpStatus.OK}
   }
 }

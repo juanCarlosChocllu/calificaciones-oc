@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { CorreosService } from './correos.service';
 import { CreateCorreoDto } from './dto/create-correo.dto';
-import { UpdateCorreoDto } from './dto/update-correo.dto';
 import { CreateConfiguracionDto } from './dto/create-configuracion-correo.dto';
+import { tokenGuard } from 'src/autenticacion/guards/token/token.guard';
 
+@UseGuards(tokenGuard)
 @Controller('correos')
 export class CorreosController {
   constructor(private readonly correosService: CorreosService) {}

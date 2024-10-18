@@ -6,12 +6,10 @@ import { Calificacion } from './schemas/calificacion.schema';
 import { Model, Types } from 'mongoose';
 import { respuestaHttpI } from '../common/interfaces/respuestaHttp.interface';
 import { EmpresaService } from 'src/empresa/empresa.service';
-import { log } from 'node:console';
 import { SucursalService } from 'src/sucursal/sucursal.service';
 import { Flag } from 'src/common/enums/flag.enum';
-import { Type } from 'class-transformer';
 import { generarPdfEmpresa } from './utils/pdf.util';
-import { enviarEmail } from './utils/email.util';
+
 import { CalificacionesI, CalificacionI, nombreCalificacionesI } from './interfaces/calificaciones.interface';
 import { CalificacionEnum } from './enums/calificacion.enum';
 
@@ -19,10 +17,9 @@ import { CalificacionEnum } from './enums/calificacion.enum';
 import * as path from 'path'
 import * as fs from 'fs'
 import { FiltroCalificacionesDto } from './dto/filtroCalificaciones.dto';
-import { promises } from 'node:dns';
 import { fechaFormateada } from 'src/utils/formateoFecha.util';
 import { CorreosService } from 'src/correos/correos.service';
-
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 
 
@@ -34,16 +31,17 @@ export class CalificacionService {
     private readonly CalificacionSchema: Model<Calificacion>,
     protected readonly EmpresaService:EmpresaService,
     protected readonly sucursalService:SucursalService,
-    private readonly correosService:CorreosService
+    private readonly correosService:CorreosService,
+    private emiter :EventEmitter2
   ) {}
 
   async create(createCalificacionDto: CreateCalificacionDto) {
     const calificacion = await this.CalificacionSchema.create(
       createCalificacionDto,
     );
+     this.emiter.emit('calificacion.post', createCalificacionDto.sucursal)
     const respuesta: respuestaHttpI<Calificacion> = {
-      status: HttpStatus.CREATED,
-      data: calificacion,
+      status: HttpStatus.CREATED
     };
     return respuesta;
   }
@@ -150,9 +148,7 @@ async email(){
   
     const ruta =  path.join(__dirname,'..', '..', 'pdf', `${dia}${mes}${aqo}`)
     const archivos = await  fs.promises.readdir(ruta)    
-    const email = await this.correosService.enviarEmail(archivos,ruta )  
-    console.log(email);
-    
+    const email = await this.correosService.enviarEmail(archivos,ruta )    
     return { status:HttpStatus.OK}
   } catch (error) {  
      throw new  BadRequestException('Realiza la cofiguracion correspondiente para el envio de correos')
@@ -209,6 +205,7 @@ async email(){
      const totalCalficaciones:nombreCalificacionesI={
      Bueno:0,
      excelente:0,
+     
      Mala:0,
      MuyMala:0,
      Regular:0
@@ -222,4 +219,15 @@ async email(){
       }
       return totalCalficaciones
    }
+
+
+  async  contadorCalificacionDia(sucursal:string){
+    const diaHoy = new Date();
+    const diaInicio = new Date(diaHoy.setHours(0, 0, 0, 0));
+    const diaFin = new Date(diaHoy.setHours(23, 59, 59, 999))
+    const calificacion = await this.CalificacionSchema.countDocuments({fecha:{$gte:diaInicio,$lte:diaFin}, flag:Flag.nuevo, sucursal: new Types.ObjectId(sucursal)})
+    return calificacion
+   }
+
+
 }

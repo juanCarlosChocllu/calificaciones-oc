@@ -3,9 +3,10 @@ import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Empresa } from './schemas/empresa.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { respuestaHttpI } from 'src/common/interfaces/respuestaHttp.interface';
 import { Flag } from 'src/common/enums/flag.enum';
+import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
 
 @Injectable()
 export class EmpresaService {
@@ -26,27 +27,43 @@ export class EmpresaService {
   }
 
   findAll() {
-    return this.EmpresaSchema.find();
+    return this.EmpresaSchema.find({flag:Flag.nuevo});
   }
 
   async findOne(id: string) {
-   const empresa = await this.vericarEmpresa(id)
+   const empresa = await this.vericarEmpresa(`${id}`)
    return empresa
   }
 
-  update(id: number, updateEmpresaDto: UpdateEmpresaDto) {
-    return `This action updates a #${id} empresa`;
+  
+  async findOneEmpresa(id: string) {
+    const empresa = await this.vericarEmpresa(`${id}`)
+    return empresa
+   }
+ 
+
+  async update(id: string, updateEmpresaDto: UpdateEmpresaDto) {
+    const empresa = await  this.EmpresaSchema.findOne({_id:new Types.ObjectId(id), flag:Flag.nuevo})
+    if(!empresa){
+      throw new NotFoundException()
+    }
+     await this.EmpresaSchema.findByIdAndUpdate(empresa, updateEmpresaDto)
+    return {status:HttpStatus.OK};
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} empresa`;
+ async softDelete(id: string) {
+    const empresa = await  this.EmpresaSchema.findOne({_id:new Types.ObjectId(id), flag:Flag.nuevo})
+    if(!empresa){
+      throw new NotFoundException()
+    }
+    await this.EmpresaSchema.findByIdAndUpdate(empresa, {flag:Flag.eliminado})
+    return {estatus:HttpStatus.OK} ;
   }
 
   public async listarEmpresas() {
     const empresa = await this.EmpresaSchema.find({
       flag: Flag.nuevo,
     });
-
     return empresa;
   }
 

@@ -44,7 +44,6 @@ export class CorreosService {
   private async configuracionOne(){
     const configuracion = await this.ConfiguracionNodeMailerSchema.findOne({flag:Flag.nuevo})
     const bodyEmail = await this.CorreoSchema.findOne({flag:Flag.nuevo})    
-
       if(configuracion && bodyEmail){
         this.host= configuracion.host
         this.port = configuracion.port
@@ -79,7 +78,6 @@ export class CorreosService {
   }
   
    async  enviarEmail(pdf:any[], ruta:string){
- 
     try {
       const info = await this.confiGuracionTransporter().sendMail({
         from:this.user,

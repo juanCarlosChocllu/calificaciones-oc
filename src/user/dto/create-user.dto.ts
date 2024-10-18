@@ -1,5 +1,6 @@
-import { IsMongoId, IsString } from 'class-validator';
+import { IsEnum, IsMongoId, IsString } from 'class-validator';
 import { Types } from 'mongoose';
+import { rol } from '../enum/rol.enum';
 
 export class CreateUserDto {
   @IsString()
@@ -17,6 +18,6 @@ export class CreateUserDto {
   @IsMongoId()
   sucursal: Types.ObjectId;
 
-  @IsString()
+  @IsEnum(rol)
   rol: string;
 }

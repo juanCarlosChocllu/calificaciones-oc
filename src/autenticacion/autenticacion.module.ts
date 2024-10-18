@@ -4,8 +4,7 @@ import { AutenticacionController } from './autenticacion.controller';
 import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants/jwt.constants';
-import { tokenGuard } from './guards/token.guards';
-import { SucursalModule } from 'src/sucursal/sucursal.module';
+import { tokenGuard } from './guards/token/token.guard';
 
 @Module({
   imports: [
