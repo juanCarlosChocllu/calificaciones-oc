@@ -20,6 +20,10 @@ export class User {
 
   @Prop()
   rol: string;
+
+
+  @Prop({ type: Date, default: Date.now() })
+  fecha: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -12,8 +12,7 @@ import { SucursalService } from './sucursal.service';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
 import { UpdateSucursalDto } from './dto/update-sucursal.dto';
 import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
-import { tokenGuard } from 'src/autenticacion/guards/token/token.guard';
-@UseGuards(tokenGuard)
+
 @Controller('sucursal')
 export class SucursalController {
   constructor(private readonly sucursalService: SucursalService) {}

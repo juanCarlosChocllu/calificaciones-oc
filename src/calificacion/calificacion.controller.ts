@@ -16,9 +16,7 @@ import { UpdateCalificacionDto } from './dto/update-calificacion.dto';
 import { Type } from 'class-transformer';
 import { Types } from 'mongoose';
 import { FiltroCalificacionesDto } from './dto/filtroCalificaciones.dto';
-import { tokenGuard } from 'src/autenticacion/guards/token/token.guard';
 
-@UseGuards(tokenGuard)
 @Controller('calificacion')
 export class CalificacionController {
   constructor(private readonly calificacionService: CalificacionService) {}
@@ -27,8 +25,8 @@ export class CalificacionController {
     @Body() createCalificacionDto: CreateCalificacionDto,
     @Req() req: string,
   ) {
-    const idSucursal = req['idSucursal'];
-    createCalificacionDto.sucursal = new Types.ObjectId(idSucursal);
+    const {sucursal} = req['usuario']
+    createCalificacionDto.sucursal = new Types.ObjectId(sucursal);
     return this.calificacionService.create(createCalificacionDto);
   }
 

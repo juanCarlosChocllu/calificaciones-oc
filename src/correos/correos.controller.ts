@@ -2,9 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { CorreosService } from './correos.service';
 import { CreateCorreoDto } from './dto/create-correo.dto';
 import { CreateConfiguracionDto } from './dto/create-configuracion-correo.dto';
-import { tokenGuard } from 'src/autenticacion/guards/token/token.guard';
 
-@UseGuards(tokenGuard)
 @Controller('correos')
 export class CorreosController {
   constructor(private readonly correosService: CorreosService) {}

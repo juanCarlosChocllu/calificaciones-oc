@@ -6,6 +6,10 @@ import { CalificacionModule } from './calificacion/calificacion.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AutenticacionModule } from './autenticacion/autenticacion.module';
 import { CorreosModule } from './correos/correos.module';
+import { ClientesModule } from './clientes/clientes.module';
+import { APP_GUARD } from '@nestjs/core';
+import { tokenGuard } from './autenticacion/guards/token/token.guard';
+import { CuponModule } from './cupon/cupon.module';
 
 @Module({
   imports: [
@@ -16,8 +20,19 @@ import { CorreosModule } from './correos/correos.module';
     CalificacionModule,
     AutenticacionModule,
     CorreosModule,
+    ClientesModule,
+    CuponModule,
+    
   ],
+
   controllers: [],
-  providers: [],
+  providers: [
+    {
+    provide:APP_GUARD,
+    useClass:tokenGuard,
+    
+  }
+
+],
 })
 export class AppModule {}

@@ -12,10 +12,8 @@ import { EmpresaService } from './empresa.service';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
-import { tokenGuard } from 'src/autenticacion/guards/token/token.guard';
 
 
-@UseGuards(tokenGuard)
 @Controller('empresa')
 export class EmpresaController {
   constructor(private readonly empresaService: EmpresaService) {}
