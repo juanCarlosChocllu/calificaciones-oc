@@ -8,12 +8,16 @@ import { log, time } from 'node:console';
 import { Flag } from 'src/common/enums/flag.enum';
 import { CuponService } from 'src/cupon/cupon.service';
 import { Sucursal } from 'src/sucursal/schemas/sucursal.schema';
+import { HttpService } from '@nestjs/axios';
+import { ProvidersModule } from 'src/providers/providers.module';
+import { ProvidersService } from 'src/providers/providers.service';
 
 @Injectable()
 export class ClientesService {
   constructor(
     @InjectModel(Cliente.name) private readonly  clienteSchema:Model<Cliente> ,
-    private readonly cuponService:CuponService
+    private readonly cuponService:CuponService,
+    private readonly providersService:ProvidersService
     
   
   ){}
@@ -25,6 +29,8 @@ export class ClientesService {
     await this.clienteSchema.findOneAndUpdate(cliente._id, {cupon: new Types.ObjectId(cupon._id)})
     const cuponAsigando=   await this.cuponService.actulizarEstadosCupon(cupon._id)
     if(cuponAsigando.estatus === 200){
+      const  mensaje:string = `Estimado cliente ${cliente.nombreCompleto} se le asigno el nuemero de cupon de descuentos ${cupon.numeroCupon}`
+      await this.providersService.apiWhatsapp(cliente.celular,mensaje)
       return {status:HttpStatus.CREATED};
     }
    }else{

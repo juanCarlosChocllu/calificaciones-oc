@@ -10,6 +10,7 @@ import { ClientesModule } from './clientes/clientes.module';
 import { APP_GUARD } from '@nestjs/core';
 import { tokenGuard } from './autenticacion/guards/token/token.guard';
 import { CuponModule } from './cupon/cupon.module';
+import { ProvidersModule } from './providers/providers.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CuponModule } from './cupon/cupon.module';
     CorreosModule,
     ClientesModule,
     CuponModule,
+    ProvidersModule,
     
   ],
 
@@ -31,7 +33,8 @@ import { CuponModule } from './cupon/cupon.module';
     provide:APP_GUARD,
     useClass:tokenGuard,
     
-  }
+  },
+
 
 ],
 })
