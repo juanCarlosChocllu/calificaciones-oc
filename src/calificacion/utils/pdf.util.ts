@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { CalificacionesI } from '../interfaces/calificaciones.interface';
 
-export async function generarPdfEmpresa(data: CalificacionesI[]) {
+export async function generarPdfEmpresa(data: CalificacionesI[]) {    
     const date = new Date();
     const dia = String(date.getDate()).padStart(2, '0');
     const mes = String(date.getMonth() + 1).padStart(2, '0');
@@ -97,4 +97,83 @@ export async function generarPdfEmpresa(data: CalificacionesI[]) {
     }
 
     await browser.close();
+}
+
+
+export async function emailBody(data: CalificacionesI[]) {
+
+    let emailContent = `
+    <html>
+    <head>
+        <style>
+            /* Aseguramos que los estilos de Bootstrap se apliquen bien en los correos */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 10px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+            th {
+                background-color: #f8f9fa;
+            }
+            .container {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #f9f9f9;
+                border-radius: 10px;
+                padding: 20px;
+            }
+            h1, h3 {
+                color: #007bff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="text-center">Calificaciones de Sucursales por Empresa</h1>
+    `;
+
+
+    data.forEach(empresaData => {
+  
+        emailContent += `
+            <h3>${empresaData.empresa}</h3>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Sucursal</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+
+        empresaData.sucursales.forEach(sucursal => {
+            emailContent += `
+                <tr>
+                    <td> </td>
+                </tr>
+            `;
+        });
+
+    
+        emailContent += `
+                </tbody>
+            </table>
+        `;
+    });
+
+
+    emailContent += `
+            <p class="text-center">Gracias por su atención.</p>
+        </div>
+    </body>
+    </html>
+    `;
+
+   
+    return emailContent;
 }

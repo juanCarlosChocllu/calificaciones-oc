@@ -2,8 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { port , interfaceRed} from './config/variables.entorno.config';
 
-async function bootstrap() {
+async function bootstrap() {  
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.setGlobalPrefix('api');
@@ -34,6 +35,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('doc', app, document);
-  await app.listen(5000);
+  await app.listen(port, interfaceRed, ()=>{
+    console.log(`Servidor corriendo  host:${interfaceRed}:${port}`);
+    
+  });
 }
 bootstrap();

@@ -29,7 +29,8 @@ export class ClientesService {
     await this.clienteSchema.findOneAndUpdate(cliente._id, {cupon: new Types.ObjectId(cupon._id)})
     const cuponAsigando=   await this.cuponService.actulizarEstadosCupon(cupon._id)
     if(cuponAsigando.estatus === 200){
-      const  mensaje:string = `Estimado cliente ${cliente.nombreCompleto} se le asigno el nuemero de cupon de descuentos ${cupon.numeroCupon}`
+      const mensaje: string = `Estimado cliente ${cliente.nombreCompleto}, se le ha asignado el número de cupón de descuento: ${cupon.numeroCupon}. ¡Disfrútelo!`;
+
       await this.providersService.apiWhatsapp(cliente.celular,mensaje)
       return {status:HttpStatus.CREATED};
     }

@@ -87,6 +87,7 @@ export class CorreosService {
         html:this.html,
         attachments: pdf.map((archivo)=> ({ filename: archivo, path:`${ruta}\\${archivo}`}) )
     }) 
+   
     return info.messageId
     } catch (error) {
         console.log(error);

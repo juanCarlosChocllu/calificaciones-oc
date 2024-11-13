@@ -8,7 +8,7 @@ import { respuestaHttpI } from '../common/interfaces/respuestaHttp.interface';
 import { EmpresaService } from 'src/empresa/empresa.service';
 import { SucursalService } from 'src/sucursal/sucursal.service';
 import { Flag } from 'src/common/enums/flag.enum';
-import { generarPdfEmpresa } from './utils/pdf.util';
+import { emailBody, generarPdfEmpresa } from './utils/pdf.util';
 
 import { CalificacionesI, CalificacionI, nombreCalificacionesI } from './interfaces/calificaciones.interface';
 import { CalificacionEnum } from './enums/calificacion.enum';
@@ -105,6 +105,7 @@ export class CalificacionService {
 
     const dataAgrupada:CalificacionesI[]=  this.agruparPorEmpresa(calificaciones)
      generarPdfEmpresa(dataAgrupada)
+     emailBody(dataAgrupada)
 
       return  {status:HttpStatus.OK}
       
