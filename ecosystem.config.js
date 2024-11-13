@@ -1,6 +1,6 @@
 module.exports = {
     apps : [{
-      name: "api_analitic",
+      name: "api_calificaciones",
       script: "dist/main.js",
       instances: 1,
       log_date_format: "YYYY-MM-DD HH:mm Z", 
