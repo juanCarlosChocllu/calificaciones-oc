@@ -11,10 +11,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { tokenGuard } from './autenticacion/guards/token/token.guard';
 import { CuponModule } from './cupon/cupon.module';
 import { ProvidersModule } from './providers/providers.module';
+import { databaseConeccion } from './config/variables.entorno.config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://kanna:kanna@localhost:27017/calificaciones?authSource=admin'),
+    MongooseModule.forRoot(databaseConeccion),
     EmpresaModule,
     SucursalModule,
     UserModule,
