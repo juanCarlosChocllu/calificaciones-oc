@@ -12,6 +12,7 @@ import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { respuestaHttpI } from 'src/common/interfaces/respuestaHttp.interface';
 import { SucursalService } from 'src/sucursal/sucursal.service';
+import { Flag } from 'src/common/enums/flag.enum';
 
 @Injectable()
 export class UserService {
@@ -38,7 +39,7 @@ export class UserService {
   }
 
   findAll() {
-    return `This action returns all user`;
+    return this.UserSchema.find({flag:Flag.nuevo});
   }
 
   async buscarUsuarioExistente(user: string) {
