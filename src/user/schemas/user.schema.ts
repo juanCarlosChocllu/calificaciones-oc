@@ -7,10 +7,10 @@ export class User {
   @Prop()
   nombres: string;
   @Prop()
-  pellidos: string;
-  @Prop({ unique: true })
+  apellidos: string;
+  @Prop({unique:true})
   user: string;
-  @Prop()
+  @Prop({select:false})
   password: string;
   @Prop({ type: Types.ObjectId, ref: 'Sucursal' })
   sucursal: string;
