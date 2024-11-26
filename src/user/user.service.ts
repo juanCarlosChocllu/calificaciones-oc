@@ -77,6 +77,7 @@ export class UserService {
         $project: {
           nombres: 1, 
           apellidos: 1, 
+          user:1,
           sucursal:  '$sucursal.nombre', 
           empresa: '$empresa.nombre' ,
           rol: 1 
