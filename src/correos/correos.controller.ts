@@ -21,11 +21,11 @@ export class CorreosController {
   }
 
   
-  @Post('listar/email')
+  @Get('listar/email')
   listarEmail() {
     return this.correosService.listarEmail();
   }
-  @Post('listar/configuracion')
+  @Get('listar/configuracion')
   listarConfiguracion() {
     return this.correosService.listarConfiguracion();
   }
