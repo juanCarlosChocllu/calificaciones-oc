@@ -6,7 +6,6 @@ import { Empresa } from './schemas/empresa.schema';
 import { Model, Types } from 'mongoose';
 import { respuestaHttpI } from 'src/common/interfaces/respuestaHttp.interface';
 import { Flag } from 'src/common/enums/flag.enum';
-import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
 
 @Injectable()
 export class EmpresaService {

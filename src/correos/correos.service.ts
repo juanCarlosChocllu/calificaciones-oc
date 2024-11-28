@@ -1,10 +1,10 @@
-import {BadGatewayException, forwardRef, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import {BadGatewayException, Body, forwardRef, HttpStatus, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateCorreoDto } from './dto/create-correo.dto';
 
 import { CreateConfiguracionDto } from './dto/create-configuracion-correo.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Correo } from './schema/correo.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ConfiguracionNodeMailer } from './schema/configuracion.shema';
 
 import * as nodemailer from 'nodemailer'
@@ -12,6 +12,9 @@ import { Flag } from 'src/common/enums/flag.enum';
 
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CalificacionService } from 'src/calificacion/calificacion.service';
+import { UpdateCreateConfiguracionDto } from './dto/update-configuracion-correo.dto';
+import { UpdateCorreoDto } from './dto/update-correo.dto';
+import { log } from 'console';
 
 @Injectable()
 export class CorreosService {
@@ -24,7 +27,6 @@ export class CorreosService {
   private subject:string
    private text:string
   private html:string
-  private readonly logger = new Logger(CorreosService.name);
 
   constructor (
     @InjectModel(Correo.name) private readonly CorreoSchema:Model<Correo>,
@@ -46,7 +48,7 @@ export class CorreosService {
 
   private async configuracionOne(){
     const configuracion = await this.ConfiguracionNodeMailerSchema.findOne({flag:Flag.nuevo})
-    const bodyEmail = await this.CorreoSchema.find({flag:Flag.nuevo}).limit(2)
+    const bodyEmail = await this.CorreoSchema.find({flag:Flag.nuevo}).limit(5)
       if(configuracion && bodyEmail.length > 0){
         this.host= configuracion.host
         this.port = configuracion.port
@@ -106,14 +108,42 @@ listarEmail(){
 listarConfiguracion(){
   return this.ConfiguracionNodeMailerSchema.find({flag:Flag.nuevo})
 }
-@Cron(CronExpression.EVERY_5_MINUTES)
-  async envioDesCorreosAutomaticos(){
-    try {
-      this.logger.debug('enviando correos')
-     // await this.calificacionService.email()
-      this.logger.debug('correos')
-    } catch (error) {
-      throw new BadGatewayException()
+  async soffDelete(id:string){
+    const correo = await this.CorreoSchema.findById(id)
+    if(!correo){
+      throw new NotFoundException() 
     }
+    await this.CorreoSchema.updateOne({_id:id},{flag:Flag.eliminado})
+    return {status:HttpStatus.OK}
+}
+
+async soffDeleteConfiguracion(id:string){
+  const configuracion = await this.ConfiguracionNodeMailerSchema.findById(id)
+  if(!configuracion){
+    throw new NotFoundException() 
   }
+  await this.ConfiguracionNodeMailerSchema.updateOne({_id:id},{flag:Flag.eliminado})
+  return {status:HttpStatus.OK}
+
+}
+
+async gmailUpdate(id:string,updateCorreoDto:UpdateCorreoDto){
+  const correo = await this.CorreoSchema.findById(id)
+  if(!correo){
+    throw new NotFoundException() 
+  }
+  await this.CorreoSchema.updateOne({_id:id},updateCorreoDto)
+  return {status:HttpStatus.OK}
+  
+}
+async configuracionUpdate(id:string, updateCreateConfiguracionDto:UpdateCreateConfiguracionDto){
+  console.log(updateCreateConfiguracionDto);
+  
+  const configuracion = await this.ConfiguracionNodeMailerSchema.findById(id)
+  if(!configuracion){
+    throw new NotFoundException() 
+  }
+  await this.ConfiguracionNodeMailerSchema.updateOne({_id:id},updateCreateConfiguracionDto)
+  return {status:HttpStatus.OK} 
+}
 }

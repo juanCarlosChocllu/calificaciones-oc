@@ -2,6 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { CorreosService } from './correos.service';
 import { CreateCorreoDto } from './dto/create-correo.dto';
 import { CreateConfiguracionDto } from './dto/create-configuracion-correo.dto';
+import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
+import { UpdateCreateConfiguracionDto } from './dto/update-configuracion-correo.dto';
+import { UpdateCorreoDto } from './dto/update-correo.dto';
 
 @Controller('correos')
 export class CorreosController {
@@ -17,6 +20,41 @@ export class CorreosController {
     return this.correosService.createConfiguracion(createConfiguracionDto);
   }
 
+  
+  @Post('listar/email')
+  listarEmail() {
+    return this.correosService.listarEmail();
+  }
+  @Post('listar/configuracion')
+  listarConfiguracion() {
+    return this.correosService.listarConfiguracion();
+  }
 
+  @Delete('gmail/:id')
+  soffDelete(@Param('id' ,MongoIdValidationPipe)id:string) {
+    return this.correosService.soffDelete(id);
+  }
+
+  @Patch('gmail/:id')
+  gmailUpdate(@Param('id' ,MongoIdValidationPipe)id:string,@Body() updateCorreoDto : UpdateCorreoDto) {
+    return this.correosService.gmailUpdate(id, updateCorreoDto) ;
+  }
+
+  @Patch('configuracion/:id')
+  configuracionUpdate(@Param('id' ,MongoIdValidationPipe)id:string,@Body() updateCreateConfiguracionDto : UpdateCreateConfiguracionDto) {
+    return this.correosService.configuracionUpdate(id, updateCreateConfiguracionDto) ;
+  }
+
+
+
+  
+  @Delete('configuracion/:id')
+  soffDeleteConfiguracion(@Param('id' ,MongoIdValidationPipe)id:string) {
+    return this.correosService.soffDeleteConfiguracion(id);
+  }
+
+
+
+  
  
 }

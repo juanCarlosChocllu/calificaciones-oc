@@ -42,4 +42,6 @@ export class EmpresaController {
   softDelte(@Param('id',MongoIdValidationPipe) id: string) {
     return this.empresaService.softDelete(id);
   }
+
+  
 }
