@@ -132,9 +132,7 @@ export class UserService {
   }
 
   async findOne(id:string){
-    const user = await this.UserSchema.findOne({_id:id ,flag:Flag.nuevo})
-    console.log(user);
-    
+    const user = await this.UserSchema.findOne({_id:id ,flag:Flag.nuevo})    
     if(!user){
       throw new NotFoundException()
     }

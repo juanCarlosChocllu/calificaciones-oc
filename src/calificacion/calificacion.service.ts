@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, UseGuards , BadRequestException} from '@nestjs/common';
+import { HttpStatus, Injectable, UseGuards , BadRequestException, Inject, forwardRef, Logger, BadGatewayException} from '@nestjs/common';
 import { CreateCalificacionDto } from './dto/create-calificacion.dto';
 import { UpdateCalificacionDto } from './dto/update-calificacion.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,7 +8,7 @@ import { respuestaHttpI } from '../common/interfaces/respuestaHttp.interface';
 import { EmpresaService } from 'src/empresa/empresa.service';
 import { SucursalService } from 'src/sucursal/sucursal.service';
 import { Flag } from 'src/common/enums/flag.enum';
-import { emailBody, generarPdfEmpresa } from './utils/pdf.util';
+import { generarPdfEmpresa } from './utils/pdf.util';
 
 import { CalificacionesI, CalificacionI, nombreCalificacionesI } from './interfaces/calificaciones.interface';
 import { CalificacionEnum } from './enums/calificacion.enum';
@@ -20,39 +20,47 @@ import { FiltroCalificacionesDto } from './dto/filtroCalificaciones.dto';
 import { fechaFormateada } from 'src/utils/formateoFecha.util';
 import { CorreosService } from 'src/correos/correos.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { log } from 'console';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 
 
 
 @Injectable()
 export class CalificacionService {
+  private readonly logger = new Logger(CalificacionService.name);
+
   constructor(
     @InjectModel(Calificacion.name)
     private readonly CalificacionSchema: Model<Calificacion>,
     protected readonly EmpresaService:EmpresaService,
     protected readonly sucursalService:SucursalService,
-    private readonly correosService:CorreosService,
+     private readonly correosService:CorreosService,
     private emiter :EventEmitter2
   ) {}
 
   async create(createCalificacionDto: CreateCalificacionDto) {
-    const calificacion = await this.CalificacionSchema.create(
+  try {
+    await this.CalificacionSchema.create(
       createCalificacionDto,
     );
-     this.emiter.emit('calificacion.post', createCalificacionDto.sucursal)
     const respuesta: respuestaHttpI<Calificacion> = {
       status: HttpStatus.CREATED
     };
     return respuesta;
+  } catch (error) {
+    throw new BadRequestException()
+    
+  }
   }
 
   async findAll() {
-   return await this.informacionCalificacionPorDia()
+   return  this.informacionCalificacionPorDia()
    
    
   }
 
-  private async informacionCalificacionPorDia() {
+  private async informacionCalificacionPorDia() {    
     const diaHoy = new Date();
     const diaInicio = new Date(diaHoy.setHours(0, 0, 0, 0));
     const diaFin = new Date(diaHoy.setHours(23, 59, 59, 999))
@@ -98,59 +106,37 @@ export class CalificacionService {
       const resultado={
         empresa:empresa.nombre,
         sucursal:data.nombre,
-        calificacion
+        bueno: calificacion.filter((item)=> item._id == CalificacionEnum.Bueno)[0]? calificacion.filter((item)=> item._id == CalificacionEnum.Bueno)[0] : {_id: CalificacionEnum.Bueno , cantidad:0},
+        excelente: calificacion.filter((item)=> item._id == CalificacionEnum.excelente)[0] ? calificacion.filter((item)=> item._id == CalificacionEnum.excelente)[0] : {_id: CalificacionEnum.excelente , cantidad:0},
+        Regular: calificacion.filter((item)=> item._id == CalificacionEnum.Regular)[0]? calificacion.filter((item)=> item._id == CalificacionEnum.Regular)[0] : {_id: CalificacionEnum.Regular , cantidad:0},
+        Mala: calificacion.filter((item)=> item._id == CalificacionEnum.Mala)[0]? calificacion.filter((item)=> item._id == CalificacionEnum.Mala)[0] : {_id: CalificacionEnum.Mala , cantidad:0},
+        MuyMala: calificacion.filter((item)=> item._id == CalificacionEnum.MuyMala)[0]? calificacion.filter((item)=> item._id == CalificacionEnum.MuyMala)[0] : {_id: CalificacionEnum.MuyMala , cantidad:0},
       }
+
       calificaciones.push(resultado)
-    }
-
-    const dataAgrupada:CalificacionesI[]=  this.agruparPorEmpresa(calificaciones)
-     generarPdfEmpresa(dataAgrupada)
-     emailBody(dataAgrupada)
-
+     }        
+      generarPdfEmpresa(calificaciones)
       return  {status:HttpStatus.OK}
       
   }
 
 
-   agruparPorEmpresa(data:any[]) {
-    const groupedByEmpresa = data.reduce((acc, item) => {
-   
-      if (!acc[item.empresa]) {
-        acc[item.empresa] = {
-          empresa: item.empresa,
-          sucursales: []
-        };
-      }
-    
 
-      let sucursal = acc[item.empresa].sucursales.find(s => s.sucursal === item.sucursal);
-
-      if (!sucursal) {
-        sucursal = {
-          sucursal: item.sucursal,
-          calificaciones: []
-        };        
-        acc[item.empresa].sucursales.push(sucursal);
-      }
-      sucursal.calificaciones.push(...item.calificacion);
- 
-      return acc;
-    }, {});
-    const result:CalificacionesI[] = Object.values(groupedByEmpresa);
-   return result
-}
 async email(){
+  try {
   await this.informacionCalificacionPorDia()
   const date = new Date();
   const dia = String(date.getDate()).padStart(2, '0');
   const mes = String(date.getMonth() + 1).padStart(2, '0');
   const aqo = date.getFullYear();
-  try {
-  
-    const ruta =  path.join(__dirname,'..', '..', 'pdf', `${dia}${mes}${aqo}`)
-    const archivos = await  fs.promises.readdir(ruta)    
-    const email = await this.correosService.enviarEmail(archivos,ruta )    
-    return { status:HttpStatus.OK}
+  const ruta =  path.join(__dirname,'..', '..', 'pdf', `${dia}${mes}${aqo}`)
+  const archivos = await  fs.promises.readdir(ruta)    
+  const email = await this.correosService.enviarEmail(archivos,ruta )  
+   if(email){
+       return { status:HttpStatus.OK}
+       }     
+  throw new BadRequestException()
+   
   } catch (error) {  
      throw new  BadRequestException('Realiza la cofiguracion correspondiente para el envio de correos')
   }
@@ -230,5 +216,15 @@ async email(){
     return calificacion
    }
 
+   @Cron(CronExpression.EVERY_DAY_AT_11PM)
+   async envioDesCorreosAutomaticos(){
+     try {
+       this.logger.debug('enviando correos')
+       await this.email()
+     } catch (error) {
+       throw new BadGatewayException()
+     }
+   }
+  
 
 }

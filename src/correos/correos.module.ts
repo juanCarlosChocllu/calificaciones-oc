@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CorreosService } from './correos.service';
 import { CorreosController } from './correos.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -7,6 +7,7 @@ import { ConfiguracionNodeMailer, ConfiguracionNodeMailerSchema } from './schema
 
 @Module({
   imports:[
+
     MongooseModule.forFeature([
       {
         name:Correo.name, schema:CorreoSchema

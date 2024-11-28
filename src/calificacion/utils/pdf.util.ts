@@ -1,9 +1,8 @@
 import puppeteer from 'puppeteer';
 import * as fs from 'fs';
 import * as path from 'path';
-import { CalificacionesI } from '../interfaces/calificaciones.interface';
 
-export async function generarPdfEmpresa(data: CalificacionesI[]) {    
+export async function generarPdfEmpresa(data: any[]) {
     const date = new Date();
     const dia = String(date.getDate()).padStart(2, '0');
     const mes = String(date.getMonth() + 1).padStart(2, '0');
@@ -20,74 +19,86 @@ export async function generarPdfEmpresa(data: CalificacionesI[]) {
     }
 
     const browser = await puppeteer.launch();
-    const page = await browser.newPage();    
-    for (let calificacion of data) {
+    const page = await browser.newPage();
 
+
+    const empresas: { [key: string]: any[] } = {};
+    
+    for (let calificacion of data) {
+        if (!empresas[calificacion.empresa]) {
+            empresas[calificacion.empresa] = [];
+        }
+        empresas[calificacion.empresa].push(calificacion);
+    }
+    for (let empresaName in empresas) {
+        const sucursales = empresas[empresaName];
+        let totalExcelente = 0;
+        let totalBueno = 0;
+        let totalRegular = 0;
+        let totalMala = 0;
+        let totalMuyMala = 0;
         let htmlContent = `
         <html>
         <head>
-            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-            <style>
-                body {
-                    background-color: #f4f4f9;
-                }
-                h1 {
-                    color: #007bff;
-                    margin: 20px 0;
-                    font-size: 24px; /* Tamaño reducido */
-                    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Sombra */
-                }
-                .card {
-                    margin-bottom: 20px;
-                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra en la tarjeta */
-                }
-                .card-title {
-                    font-size: 18px; /* Tamaño reducido */
-                    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Sombra */
-                }
-                p {
-                    font-size: 14px; /* Tamaño reducido */
-                }
-                .rating {
-                    display: inline-block;
-                    background-color: #007bff;
-                    color: #fff;
-                    padding: 5px 15px; /* Tamaño ajustado */
-                    border-radius: 5px;
-                    font-size: 14px; /* Tamaño reducido */
-                    margin: 5px;
-                }
-            </style>
+        <script src="https://cdn.tailwindcss.com"></script>
         </head>
         <body>
-            <div class="container">
-                <h1 class="text-center">${calificacion.empresa}</h1>
-                <div class="row">`;
+        <div class="container mx-auto p-4">
+          <div class="text-right text-sm mb-4">
+            <span>Fecha del reporte: ${dia}/${mes}/${aqo}</span>
+        </div>
+        <h1 class="text-center text-2xl font-bold">${empresaName}</h1>
 
-        for (let sucursal of calificacion.sucursales) {
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white shadow-md rounded-lg border">
+                <thead class="bg-blue-500 text-white">
+                    <tr>
+                        <th class="px-4 py-2 border">Sucursal</th>
+                        <th class="px-4 py-2 border">Muy Bueno</th>
+                        <th class="px-4 py-2 border">Bueno</th>
+                        <th class="px-4 py-2 border">Aceptable</th>
+                        <th class="px-4 py-2 border">Deficiente</th>
+                        <th class="px-4 py-2 border">Malo</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        for (let sucursal of sucursales) {
+            totalExcelente += sucursal.excelente.cantidad;
+            totalBueno += sucursal.bueno.cantidad;
+            totalRegular += sucursal.Regular.cantidad;
+            totalMala += sucursal.Mala.cantidad;
+            totalMuyMala += sucursal.MuyMala.cantidad;
             htmlContent += `
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h2 class="card-title">Sucursal: ${sucursal.sucursal}</h2>`;
-            
-            for (let calificacion of sucursal.calificaciones) {
-                htmlContent += `
-                    <p><strong>Calificación:</strong> ${calificacion._id}</p>
-                    <p><strong>Cantidad:</strong> ${calificacion.cantidad}</p>`;
-            }
-            htmlContent += `</div></div></div>`;
+            <tr class="border-b">
+                <td class="px-4 text-center py-2 font-medium border">${sucursal.sucursal}</td>
+                <td class="px-4 text-center py-2 border">${sucursal.excelente.cantidad}</td>
+                <td class="px-4 text-center py-2 border">${sucursal.bueno.cantidad}</td>
+                <td class="px-4 text-center py-2 border">${sucursal.Regular.cantidad}</td>
+                <td class="px-4 text-center py-2 border">${sucursal.Mala.cantidad}</td>
+                <td class="px-4 text-center py-2 border">${sucursal.MuyMala.cantidad}</td>
+            </tr>
+            `;
         }
-
         htmlContent += `
-                </div>
-            </div>
+                </tbody>
+                <tfoot class="bg-gray-100">
+                    <tr>
+                        <td class="px-4 text-center py-2 font-medium border">Total</td>
+                        <td class="px-4 text-center py-2 font-medium border">${totalExcelente}</td>
+                        <td class="px-4 text-center py-2 border">${totalBueno}</td>
+                        <td class="px-4 text-center py-2 border">${totalRegular}</td>
+                        <td class="px-4 text-center py-2 border">${totalMala}</td>
+                        <td class="px-4 text-center py-2 border">${totalMuyMala}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        </div>
         </body>
-        </html>`;
-
-        const archivo = path.join(pdfPathCarpetas, `${calificacion.empresa}${aqo}${mes}${dia}.pdf`);
-     
-    
+        </html>
+        `;
+        const archivo = path.join(pdfPathCarpetas, `${empresaName}${aqo}${mes}${dia}.pdf`);
         await page.setContent(htmlContent);
         await page.pdf({
             path: archivo,
@@ -97,83 +108,4 @@ export async function generarPdfEmpresa(data: CalificacionesI[]) {
     }
 
     await browser.close();
-}
-
-
-export async function emailBody(data: CalificacionesI[]) {
-
-    let emailContent = `
-    <html>
-    <head>
-        <style>
-            /* Aseguramos que los estilos de Bootstrap se apliquen bien en los correos */
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            th, td {
-                padding: 10px;
-                text-align: left;
-                border: 1px solid #ddd;
-            }
-            th {
-                background-color: #f8f9fa;
-            }
-            .container {
-                font-family: Arial, sans-serif;
-                margin: 20px;
-                background-color: #f9f9f9;
-                border-radius: 10px;
-                padding: 20px;
-            }
-            h1, h3 {
-                color: #007bff;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1 class="text-center">Calificaciones de Sucursales por Empresa</h1>
-    `;
-
-
-    data.forEach(empresaData => {
-  
-        emailContent += `
-            <h3>${empresaData.empresa}</h3>
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Sucursal</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-
-        empresaData.sucursales.forEach(sucursal => {
-            emailContent += `
-                <tr>
-                    <td> </td>
-                </tr>
-            `;
-        });
-
-    
-        emailContent += `
-                </tbody>
-            </table>
-        `;
-    });
-
-
-    emailContent += `
-            <p class="text-center">Gracias por su atención.</p>
-        </div>
-    </body>
-    </html>
-    `;
-
-   
-    return emailContent;
 }
