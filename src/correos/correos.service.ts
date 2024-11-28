@@ -48,7 +48,7 @@ export class CorreosService {
 
   private async configuracionOne(){
     const configuracion = await this.ConfiguracionNodeMailerSchema.findOne({flag:Flag.nuevo})
-    const bodyEmail = await this.CorreoSchema.find({flag:Flag.nuevo}).limit(5)
+    const bodyEmail = await this.CorreoSchema.find({flag:Flag.nuevo}).limit(5)    
       if(configuracion && bodyEmail.length > 0){
         this.host= configuracion.host
         this.port = configuracion.port
@@ -65,26 +65,28 @@ export class CorreosService {
 
   }
 
-  private confiGuracionTransporter(){    
+  private configuracionTransporter() { 
+    console.log(this.port);
+    console.log(this.host);
     const transporter = nodemailer.createTransport({
-      host:this.host,
-      port:this.port || 587,
-      secure:false,
-      auth:{
-          user:this.user,
-           pass:this.password
-  
+      host: this.host.trim(),
+      port: this.port,
+      secure: true,
+      auth: {
+        user: this.user,
+        pass: this.password
       },
       tls: {
-          rejectUnauthorized: false 
-      }
-    })
-    return transporter
-  }
-  
+        rejectUnauthorized: true 
+      },
+      connectionTimeout: 10000, 
+      socketTimeout: 10000 
+    });
+    return transporter;
+}
    async  enviarEmail(pdf:any[], ruta:string){    
     try {
-      const info = await this.confiGuracionTransporter().sendMail({
+      const info = await this.configuracionTransporter().sendMail({
         from:this.user,
         to:this.to,
         subject:this.subject,
