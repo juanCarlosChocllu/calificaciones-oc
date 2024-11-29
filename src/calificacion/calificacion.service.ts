@@ -137,10 +137,8 @@ async email(){
        }     
   throw new BadRequestException()
    
-  } catch (error) { 
-    console.log(error);
-     
-     throw new  BadRequestException('Realiza la cofiguracion correspondiente para el envio de correos')
+  } catch (error) {     
+     throw new  BadRequestException('Revisa tu cofiguracion correspondiente para el envio de correos')
   }
 }
 

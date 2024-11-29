@@ -10,11 +10,9 @@ import { ConfiguracionNodeMailer } from './schema/configuracion.shema';
 import * as nodemailer from 'nodemailer'
 import { Flag } from 'src/common/enums/flag.enum';
 
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { CalificacionService } from 'src/calificacion/calificacion.service';
 import { UpdateCreateConfiguracionDto } from './dto/update-configuracion-correo.dto';
 import { UpdateCorreoDto } from './dto/update-correo.dto';
-import { log } from 'console';
+
 
 @Injectable()
 export class CorreosService {
@@ -48,26 +46,23 @@ export class CorreosService {
 
   private async configuracionOne(){
     const configuracion = await this.ConfiguracionNodeMailerSchema.findOne({flag:Flag.nuevo})
-    const bodyEmail = await this.CorreoSchema.find({flag:Flag.nuevo}).limit(5)    
-      if(configuracion && bodyEmail.length > 0){
-        this.host= configuracion.host
+    const bodyEmail = await this.CorreoSchema.findOne({flag:Flag.nuevo}) 
+      if(configuracion && bodyEmail){
+        this.host= configuracion.host.trim()
         this.port = configuracion.port
         this.user = configuracion.correo
         this.password = configuracion.password
 
-        this.to= bodyEmail.map(email => email.to).join(", ")
-        this.text= bodyEmail[0].text
-        this.subject= bodyEmail[0].subject,
-        this.html = bodyEmail[0].html
+        this.to= bodyEmail.to.trim()
+        this.text= bodyEmail.text
+        this.subject= bodyEmail.subject,
+        this.html = bodyEmail.html
 
       }
-     
-
+    
   }
 
   private configuracionTransporter() { 
-    console.log(this.port);
-    console.log(this.host);
     const transporter = nodemailer.createTransport({
       host: this.host.trim(),
       port: this.port,
@@ -93,11 +88,10 @@ export class CorreosService {
         text:this.text,
         html:this.html,
         attachments: pdf.map((archivo)=> ({ filename: archivo, path:`${ruta}\\${archivo}`}) )
-    }) 
-   
+    })     
     return info.messageId
     } catch (error) {
-        console.log(error);
+      throw error
         
     }
 
