@@ -1,20 +1,22 @@
-import { IsEmail, IsNumber, IsString, NotContains } from "class-validator"
+import { IsEmail, IsNotEmpty, IsNumber, IsString, NotContains } from "class-validator";
 
+export class CreateConfiguracionDto {
 
-export class CreateConfiguracionDto  {
-
-    @IsEmail()
-    @NotContains(' ',{ message: 'El correo no debe contener espacios' })
-    correo:string
+    @IsEmail({}, { message: 'El correo debe ser un correo electrónico válido.' })
+    @IsNotEmpty({ message: 'El correo es obligatorio.' })
+    @NotContains(' ', { message: 'El correo no debe contener espacios.' })
+    correo: string;
     
-    @IsString()
-    password:string
- 
-    @IsString()
-    @NotContains(' ',{ message: 'El host no debe contener espacios' })
-    host:string
+    @IsString({ message: 'La contraseña debe ser una cadena de texto.' })
+    @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
+    password: string;
 
-    @IsNumber()
-    port:number
-     
+    @IsString({ message: 'El host debe ser una cadena de texto.' })
+    @IsNotEmpty({ message: 'El host es obligatorio.' })
+    @NotContains(' ', { message: 'El host no debe contener espacios.' })
+    host: string;
+
+    @IsNotEmpty({ message: 'El puerto es obligatorio.' })
+    @IsNumber({}, { message: 'El puerto debe ser un número.' })
+    port: number;
 }
