@@ -47,6 +47,8 @@ export class CorreosService {
   private async configuracionOne(){
     const configuracion = await this.ConfiguracionNodeMailerSchema.findOne({flag:Flag.nuevo})
     const bodyEmail = await this.CorreoSchema.findOne({flag:Flag.nuevo}) 
+    console.log(bodyEmail.to.trim());
+    
       if(configuracion && bodyEmail){
         this.host= configuracion.host.trim()
         this.port = configuracion.port

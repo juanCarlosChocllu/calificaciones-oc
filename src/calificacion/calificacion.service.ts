@@ -216,7 +216,7 @@ async email(){
     return calificacion
    }
 
-   @Cron(CronExpression.EVERY_DAY_AT_11PM)
+   /*@Cron(CronExpression.EVERY_DAY_AT_11PM)
    async envioDesCorreosAutomaticos(){
      try {
        this.logger.debug('enviando correos')
@@ -224,7 +224,7 @@ async email(){
      } catch (error) {
        throw new BadGatewayException()
      }
-   }
+   }*/
   
 
 }

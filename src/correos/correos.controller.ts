@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CorreosService } from './correos.service';
 import { CreateCorreoDto } from './dto/create-correo.dto';
 import { CreateConfiguracionDto } from './dto/create-configuracion-correo.dto';
