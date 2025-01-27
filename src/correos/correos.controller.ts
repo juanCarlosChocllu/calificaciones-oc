@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CorreosService } from './correos.service';
 import { CreateCorreoDto } from './dto/create-correo.dto';
 import { CreateConfiguracionDto } from './dto/create-configuracion-correo.dto';
-import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
+import { MongoIdValidationPipe } from 'src/common/utils/MongoIdValidationPipe';
 import { UpdateCreateConfiguracionDto } from './dto/update-configuracion-correo.dto';
 import { UpdateCorreoDto } from './dto/update-correo.dto';
 

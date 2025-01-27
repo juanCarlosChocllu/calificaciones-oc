@@ -58,7 +58,31 @@ export class SucursalService {
  } 
 
   async listarSucursal(){
-    const sucursal = await this.SucursalSchema.find({flag:Flag.nuevo})
+    const sucursal = await this.SucursalSchema.aggregate([
+      {
+        $match:{
+          flag:Flag.nuevo
+        }
+      },
+      {
+        $lookup:{
+          from:'Empresa',
+          foreignField:'_id',
+          localField:'empresa',
+          as:'empresa'
+        }
+      },
+      {
+          $unwind:'$empresa'
+          },
+      {
+        $project:{
+             _id:1,
+             sucursal:'$nombre',
+             empresa:'$empresa.nombre'
+        }
+      }
+    ])
     return sucursal
   }
 

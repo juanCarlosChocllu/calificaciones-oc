@@ -14,6 +14,7 @@ import { CalificacionSocketGateway } from './calificacion-socket/calificaion-soc
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { ScheduleModule } from '@nestjs/schedule';
+import { LogCorreoModule } from 'src/log-correo/log-correo.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -25,7 +26,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     AutenticacionModule,
     EmpresaModule,
     SucursalModule,
-CorreosModule ,
+    CorreosModule ,
+    LogCorreoModule
    
   ],
   controllers: [CalificacionController],

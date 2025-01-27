@@ -11,7 +11,7 @@ import {
 import { EmpresaService } from './empresa.service';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
-import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
+import { MongoIdValidationPipe } from 'src/common/utils/MongoIdValidationPipe';
 
 
 @Controller('empresa')

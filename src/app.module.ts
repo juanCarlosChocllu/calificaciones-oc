@@ -12,6 +12,7 @@ import { tokenGuard } from './autenticacion/guards/token/token.guard';
 import { CuponModule } from './cupon/cupon.module';
 import { ProvidersModule } from './providers/providers.module';
 import { databaseConeccion } from './config/variables.entorno.config';
+import { LogCorreoModule } from './log-correo/log-correo.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { databaseConeccion } from './config/variables.entorno.config';
     ClientesModule,
     CuponModule,
     ProvidersModule,
+    LogCorreoModule,
     
   ],
 

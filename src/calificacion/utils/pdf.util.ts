@@ -108,4 +108,6 @@ export async function generarPdfEmpresa(data: any[]) {
     }
 
     await browser.close();
+
+    
 }

@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { AxiosError } from 'axios';
 import { log } from 'node:console';
 import { firstValueFrom } from 'rxjs';
 
@@ -22,9 +23,13 @@ export class ProvidersService {
                 console.log(respose);
                 
             } catch (error) {
-                if(error.status == 400){
+                console.log(error);
+                
+                const e = error as AxiosError
+                
+              /*  if(e.code == 400){
                     console.log('Necesita escanear el qr')
-                }
+                }*/
                 
             }   
 

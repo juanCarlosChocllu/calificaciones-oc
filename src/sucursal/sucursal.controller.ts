@@ -11,7 +11,7 @@ import {
 import { SucursalService } from './sucursal.service';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
 import { UpdateSucursalDto } from './dto/update-sucursal.dto';
-import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
+import { MongoIdValidationPipe } from 'src/common/utils/MongoIdValidationPipe';
 
 @Controller('sucursal')
 export class SucursalController {

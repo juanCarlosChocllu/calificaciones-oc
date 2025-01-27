@@ -17,11 +17,14 @@ import { CalificacionEnum } from './enums/calificacion.enum';
 import * as path from 'path'
 import * as fs from 'fs'
 import { FiltroCalificacionesDto } from './dto/filtroCalificaciones.dto';
-import { fechaFormateada } from 'src/utils/formateoFecha.util';
+import { fechaFormateada } from 'src/common/utils/formateoFecha.util';
 import { CorreosService } from 'src/correos/correos.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { log } from 'console';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { cuerpoEmail } from './utils/cuerpoEmail';
+import { LogCorreoService } from 'src/log-correo/log-correo.service';
+
 
 
 
@@ -29,6 +32,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 @Injectable()
 export class CalificacionService {
   private readonly logger = new Logger(CalificacionService.name);
+  private cuerpoEmail:string
 
   constructor(
     @InjectModel(Calificacion.name)
@@ -36,7 +40,7 @@ export class CalificacionService {
     protected readonly EmpresaService:EmpresaService,
     protected readonly sucursalService:SucursalService,
      private readonly correosService:CorreosService,
-    private emiter :EventEmitter2
+    private readonly logCorreoService :LogCorreoService
   ) {}
 
   async create(createCalificacionDto: CreateCalificacionDto) {
@@ -116,6 +120,7 @@ export class CalificacionService {
       calificaciones.push(resultado)
      }        
       generarPdfEmpresa(calificaciones)
+      this.cuerpoEmail= await cuerpoEmail(calificaciones)
       return  {status:HttpStatus.OK}
       
   }
@@ -131,13 +136,19 @@ async email(){
   const aqo = date.getFullYear();
   const ruta =  path.join(__dirname,'..', '..', 'pdf', `${dia}${mes}${aqo}`)
   const archivos = await  fs.promises.readdir(ruta)    
-  const email = await this.correosService.enviarEmail(archivos,ruta )  
-   if(email){
+  const idCorreo = await this.correosService.enviarEmail(archivos,ruta, this.cuerpoEmail)  
+  
+  
+   if(idCorreo){
+       await this.logCorreoService.registrarLogCorreo(idCorreo)
+    
        return { status:HttpStatus.OK}
-       }     
+      }     
   throw new BadRequestException()
    
   } catch (error) {     
+    console.log(error);
+    
      throw new  BadRequestException('Revisa tu cofiguracion correspondiente para el envio de correos')
   }
 }
@@ -227,4 +238,8 @@ async email(){
    }*/
   
 
+}
+
+function cueporEmail(calificaciones: any[]): string | PromiseLike<string> {
+  throw new Error('Function not implemented.');
 }

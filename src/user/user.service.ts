@@ -30,12 +30,7 @@ export class UserService {
     if (!usuariosExistentes) {
       await this.sucursalService.findOne(`${createUserDto.sucursal}`)
       createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-      const user = await this.UserSchema.create(createUserDto);
-      const respuesta: respuestaHttpI<User> = {
-        status: HttpStatus.CREATED,
-        data: user,
-      };
-
+       await  this.UserSchema.create(createUserDto);
       return {status:HttpStatus.CREATED};
     }
   }
@@ -105,6 +100,8 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
+      updateUserDto.sucursal = new Types.ObjectId(updateUserDto.sucursal)
+    
      try {
       const user = await this.UserSchema.findById(id, {flag:Flag.nuevo})
       if(!user){
@@ -114,14 +111,15 @@ export class UserService {
       await this.UserSchema.findOneAndUpdate(new Types.ObjectId(id), updateUserDto)
       return {status:HttpStatus.OK}
      } catch (error) {
-      if(error.code){
-         throw new ConflictException('El usuario ya existe')
+     // if(error.code){
+       //  throw new ConflictException('El usuario ya existe')
         
-      }
+     // }
      }
   }
 
   async softdelete(id: string) {
+    console.log('eliminar');
     const user = await this.UserSchema.findById(id, {flag:Flag.nuevo})
     if(!user){
       throw new NotFoundException()

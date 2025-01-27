@@ -29,7 +29,7 @@ export class tokenGuard implements CanActivate {
       const token = autenticacionHeader.split(' ')[1];
       const usuario = this.jwtService.verify(token, {
         secret: jwtConstants.secret,
-      });
+      });      
       request.usuario = usuario;
   
       return true;

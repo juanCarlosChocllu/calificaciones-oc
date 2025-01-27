@@ -6,7 +6,7 @@ import { Cupon } from './schemas/cupon.schema';
 import { Model, Types } from 'mongoose';
 import { Flag } from 'src/common/enums/flag.enum';
 import { SucursalService } from 'src/sucursal/sucursal.service';
-import { fechaFormateada } from 'src/utils/formateoFecha.util';
+import { fechaFormateada } from 'src/common/utils/formateoFecha.util';
 import { cuponEstadoEnum } from './enums/cupon.estado.enum';
 import { log } from 'node:console';
 

@@ -4,6 +4,7 @@ import { CorreosController } from './correos.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Correo, CorreoSchema } from './schema/correo.schema';
 import { ConfiguracionNodeMailer, ConfiguracionNodeMailerSchema } from './schema/configuracion.shema';
+import { LogCorreoModule } from 'src/log-correo/log-correo.module';
 
 @Module({
   imports:[
@@ -15,7 +16,8 @@ import { ConfiguracionNodeMailer, ConfiguracionNodeMailerSchema } from './schema
       {
         name:ConfiguracionNodeMailer.name, schema:ConfiguracionNodeMailerSchema
       }
-    ])
+    ]),
+    LogCorreoModule
   ],
   controllers: [CorreosController],
   providers: [CorreosService],

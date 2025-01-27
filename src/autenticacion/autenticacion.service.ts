@@ -38,7 +38,10 @@ export class AutenticacionService {
   }
 
   async generarToken({ user }) {
-    const payload = { id: user._id, rol: user.rol, sucursal: user.sucursal };
+    const payload = { id: user._id,
+       rol: user.rol,
+       sucursal: user.sucursal,
+       };
     const token = await this.jwtService.signAsync(payload);
     return token;
   }

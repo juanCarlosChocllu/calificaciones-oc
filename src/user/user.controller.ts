@@ -11,7 +11,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { MongoIdValidationPipe } from 'src/utils/MongoIdValidationPipe';
+import { MongoIdValidationPipe } from 'src/common/utils/MongoIdValidationPipe';
 
 @Controller('user')
 export class UserController {
