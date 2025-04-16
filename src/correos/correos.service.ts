@@ -75,7 +75,7 @@ export class CorreosService {
         pass: this.password
       },
       tls: {
-        rejectUnauthorized: false 
+        rejectUnauthorized: true 
       },
       connectionTimeout: 10000, 
       socketTimeout: 10000 
